@@ -25,8 +25,20 @@ export const getEdit=async(req,res) => {
     return res.render("edit",{Pagetitle:`Edit: ${videos.title}`,videos});
    
 };
-export const postEdit=(req,res)=>{
-    
+export const postEdit=async(req,res)=>{
+    const {id} = req.params;
+    const {title,description,hashtags}=req.body;
+    const videos = await video.exists({_id: id});
+    if(!videos){
+        return res.render("404",{Pagetitle:"Cannot Edit"});    
+    }
+    await video.findByIdAndUpdate(id,{
+        title,
+        description,
+        hashtags:hashtags.split(",").map((word) => word.startsWith('#') ? word : `#${word}`),
+    });
+    return res.redirect(`/video/${id}`);
+
 }
 export const getUpload=(req,res)=>{
     return res.render("upload",{Pagetitle:"Upload Video"});
